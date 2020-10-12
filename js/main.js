@@ -1,5 +1,4 @@
 handleUploadSinglePic = (file) => {
-	$('#btn-handleRecognizeFace').show()
 	uploadSinglePic(file)
 }
 

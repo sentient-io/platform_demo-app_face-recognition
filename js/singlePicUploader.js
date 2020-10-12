@@ -52,6 +52,7 @@ uploadSinglePic = (files) => {
 			img.setAttribute('id', 'uploadedPic');
 			img.src = reader.result;
 			$('#single-pic-preview').append(img);
+			$('#btn-handleRecognizeFace').show()
         };
         $('#single-pic-uploader').hide()
 	}
