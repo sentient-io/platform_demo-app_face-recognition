@@ -62,7 +62,7 @@ drawRecognizedFace = (location) => {
 	return imgCanvasContainer;
 };
 
-// Render confidence icon and tool tio
+// Render confidence icon and tool tip
 renderConfidence = (confidence) => {
 	// Container of icon
 	let container = document.createElement('div');
@@ -106,7 +106,7 @@ renderAnalyseResult = (results) => {
 			let resultTextContainer = document.createElement('div');
 			resultTextContainer.setAttribute('class', 'col-9 result-text-container');
 
-			//Get Wiki Resule
+			//Get Wiki Results
 			let wikiResult = document.createElement('a');
 			wikiResult.setAttribute('class', 'wiki-result');
 			Object.assign(wikiResult, {
