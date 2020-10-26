@@ -147,14 +147,11 @@ a, a:hover{
 #single-pic-uploader.highlight i {
 	opacity: 100%;
 }
-#single-pic-preview img {
+#single-pic-preview img,
+#single-pic-preview canvas {
 	margin: auto;
-	max-height: 60vh;
-	max-width: 100%;
 	display: block;
 	box-sizing: border-box;
 	border: 10px white solid;
 	box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
 }
-
-/* Latest Update 2020-Oct-09 */

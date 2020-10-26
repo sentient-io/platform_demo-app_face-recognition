@@ -18,9 +18,11 @@
 	margin: 0px;
 	overflow: hidden;
 	display: -webkit-box;
-	text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    text-decoration: underline;
 	-webkit-line-clamp: 2;
-	-webkit-box-orient: vertical;
+    -webkit-box-orient: vertical;
+    cursor: pointer;
 }
 
 .conf-container {

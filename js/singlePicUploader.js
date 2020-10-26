@@ -1,5 +1,6 @@
 // 1MB is 1048576
-let fileSizeLimit = 1048576*5;
+let fileSizeLimit = 1048576 * 5;
+let canvasResizeRatio
 
 let dropArea = document.getElementById('single-pic-uploader');
 // Prevent default behaviors
@@ -30,7 +31,7 @@ dropArea.addEventListener('drop', handleDrop, false);
 function handleDrop(e) {
 	let dt = e.dataTransfer;
 	let files = dt.files;
-	handleUploadSinglePic(files)
+	handleUploadSinglePic(files);
 }
 
 // Handle picture preview
@@ -49,11 +50,34 @@ uploadSinglePic = (files) => {
 		reader.readAsDataURL(files[0]);
 		reader.onloadend = () => {
 			let img = document.createElement('img');
-			img.setAttribute('id', 'uploadedPic');
+			img.setAttribute('id', 'sourcePic');
 			img.src = reader.result;
+
+			// Hide original image
+			$(img).hide();
+
+			let image = new Image();
+			image.src = reader.result;
+			image.onload = () => {
+				let canvas = canvasDrawImage(
+					reader.result,
+					image.width,
+					image.height,
+					500
+				);
+				canvas.setAttribute('id', 'uploadedPic');
+				$('#single-pic-preview').append(canvas);
+				if(image.width >= image.height){
+					canvasResizeRatio = 500 / image.width
+				}else{
+					canvasResizeRatio = 500 / image.height
+				}
+				//console.log(canvasResizeRatio)
+			};
+
 			$('#single-pic-preview').append(img);
-			$('#btn-handleRecognizeFace').show()
-        };
-        $('#single-pic-uploader').hide()
+			$('#btn-handleRecognizeFace').show();
+		};
+		$('#single-pic-uploader').hide();
 	}
 };

@@ -1,5 +1,5 @@
 recognizeFace = () => {
-	let data = $('#uploadedPic').attr('src').split('base64,')[1];
+	let data = $('#sourcePic').attr('src').split('base64,')[1];
 	// Calling object detection API
 	$.ajax({
 		method: 'POST',
@@ -15,6 +15,7 @@ recognizeFace = () => {
 			img_base64: data,
 		}),
 		success: (response) => {
+			loadingEnd()
 			if (!Boolean(response.results[0])) {
 				// Handle no face detected
 				handelNoFaceDetected();
@@ -30,36 +31,6 @@ recognizeFace = () => {
 			// console.log(err.responseText);
 		},
 	});
-};
-
-//Draw detected face to canvas
-drawRecognizedFace = (location) => {
-	let top = location[0];
-	let right = location[1];
-	let bottom = location[2];
-	let left = location[3];
-	// expand face detection area to show the whole head
-	let expandAreaVal = (bottom - top) * 0.3;
-
-	//draw image
-	let imgCanvasContainer = document.createElement('div');
-	imgCanvasContainer.setAttribute('class', 'detected-picture shadow');
-	let img = document.getElementById('uploadedPic');
-	let canvas = document.createElement('canvas');
-	let canvasCtx = canvas.getContext('2d');
-	canvasCtx.drawImage(
-		img,
-		left - expandAreaVal,
-		top - expandAreaVal,
-		bottom - top + 2 * expandAreaVal,
-		right - left + 2 * expandAreaVal,
-		0,
-		0,
-		80,
-		80
-	);
-	imgCanvasContainer.appendChild(canvas);
-	return imgCanvasContainer;
 };
 
 // Render confidence icon and tool tip
@@ -90,51 +61,63 @@ renderConfidence = (confidence) => {
 // Render analyse result to html
 renderAnalyseResult = (results) => {
 	for (index in results) {
-			let recognizedFace = drawRecognizedFace(results[index].location);
+		// Draw boxes over detected faces
+		//let identity = results[index].identity;
+		canvasDrawBox(
+			results[index].location,
+			'uploadedPic',
+			//Removes parameters below, removed name on box (text too long)
+			//identity.substring(0, 3),
+			//'...'
+		);
 
-			let name = document.createElement('h5');
-			name.innerHTML = results[index].identity;
+		// Draw face thumbnails
+		let recognizedFace = drawRecognizedFace(results[index].location);
 
-			// Create result card container
-			let resultCard = document.createElement('div');
-			resultCard.setAttribute(
-				'class',
-				'mt-4 d-flex flex-row align-items-center result-card'
-			);
+		let name = document.createElement('h5');
+		name.innerHTML = results[index].identity;
 
-			//Create WIKI text container
-			let resultTextContainer = document.createElement('div');
-			resultTextContainer.setAttribute('class', 'col-9 result-text-container');
+		// Create result card container
+		let resultCard = document.createElement('div');
+		resultCard.setAttribute(
+			'class',
+			'mt-4 d-flex flex-row align-items-center result-card'
+		);
 
-			//Get Wiki Results
-			let wikiResult = document.createElement('a');
-			wikiResult.setAttribute('class', 'wiki-result');
-			Object.assign(wikiResult, {
-				id: String(results[index].identity).replace(/ /g, ''),
-			});
-			wikiResult.innerHTML =
-				'<img src="img/loading.gif" class="mr-2 mb-1" width="14" height="14" />Getting info from wikipedia ... ';
+		//Create WIKI text container
+		let resultTextContainer = document.createElement('div');
+		resultTextContainer.setAttribute('class', 'col-9 result-text-container');
 
-			let headerContainer = document.createElement('div');
-			headerContainer.setAttribute(
-				'class',
-				'd-flex flex-row justify-content-between'
-			);
+		//Get Wiki Results
+		let wikiResult = document.createElement('a');
+		wikiResult.setAttribute('class', 'wiki-result');
+		// Calling Wiki API
+		wikiResult.setAttribute(
+			'onclick',
+			`wikiRetrieval('${results[index].identity}')`
+		);
+		Object.assign(wikiResult, {
+			id: String(results[index].identity).replace(/ /g, ''),
+		});
+		wikiResult.innerHTML = 'More Info';
 
-			// Display all rendered result
-			$('#analyseResult').append(resultCard);
-			$(resultCard).append(recognizedFace);
-			$(resultCard).append(resultTextContainer);
-			$(headerContainer).append(name);
-			$(resultTextContainer).append(headerContainer);
-			$(resultTextContainer).append(wikiResult);
+		let headerContainer = document.createElement('div');
+		headerContainer.setAttribute(
+			'class',
+			'd-flex flex-row justify-content-between'
+		);
 
-			// Render confidence icon
-			let confidence = renderConfidence(results[index].conf);
-			$(headerContainer).append(confidence);
+		// Display all rendered result
+		$('#analyseResult').append(resultCard);
+		$(resultCard).append(recognizedFace);
+		$(resultCard).append(resultTextContainer);
+		$(headerContainer).append(name);
+		$(resultTextContainer).append(headerContainer);
+		$(resultTextContainer).append(wikiResult);
 
-			// Calling Wiki API
-			wikiRetrieval(results[index].identity);
+		// Render confidence icon
+		let confidence = renderConfidence(results[index].conf);
+		$(headerContainer).append(confidence);
 	}
 	$('#analyseResult, #btn-handleRestart').show();
 	$('#loadingText').hide();
